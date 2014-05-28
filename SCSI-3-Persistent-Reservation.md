@@ -30,6 +30,7 @@ Common used reservation Types:
 5 - Write Exclusive, registrants only
 6 - Exclusive Access, registrants only 
 
+
 This is copy of [this page][1]
 
-[1]http://aliuhui.blogspot.jp/2012/04/scsi-3-persist-reservation-command-on.html
+[1]: http://aliuhui.blogspot.jp/2012/04/scsi-3-persist-reservation-command-on.html
