@@ -2,7 +2,8 @@
 #include <time.h>
 #include <sys/select.h>
 
-#define MSG_VOTE_OK "vote ok"
+#define MSG_VOTE_REQUEST	"vote me"
+#define MSG_VOTE_REPLY		"vote ok"
 
 enum { FOLLOWER, CANDIDATE, LEADER };
 

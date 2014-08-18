@@ -37,6 +37,7 @@ int hbrecv()
 		if(FD_ISSET(sd, &fds)){
 			memset(buf, 0, sizeof(buf));
 			recv(sd, buf, sizeof(buf), 0);
+			/* need to add recieving HB and VOTE */
 			return 1;
 		}
 	}

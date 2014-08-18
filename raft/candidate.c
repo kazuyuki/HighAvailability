@@ -32,7 +32,7 @@ int request_vote()
 		dest.sin_addr.s_addr = inet_addr(destaddr[i]);
 		dest.sin_port = htons(destport[i]); 
 		memset(buf, 0, sizeof(buf));  
-		snprintf(buf, sizeof(buf), "request vote");
+		snprintf(buf, sizeof(buf), MSG_VOTE_REQUEST);
 		sendto(sd, buf, strlen(buf), 0, (struct sockaddr *)&dest, sizeof(dest));
 		printf("[D][%s:%d] sent REQUEST VOTE to [%s:%d]\n", __FILE__, __LINE__, destaddr[i], destport[i]);
 	}
@@ -53,20 +53,26 @@ int check_vote()
 		if (n == 0){
 			/* time out */
 			printf("[D][%s:%d] timeout\n", __FILE__, __LINE__);
-			return 0;
+			if (votecnt > NUMNODE/2){
+				return 1;
+			} else {
+				return 0;
+			}
 		}
+
+		/* Should I reply to heartbeat? */
 		if(FD_ISSET(sd, &fds)){
 			memset(buf, 0, sizeof(buf));
 			recv(sd, buf, sizeof(buf), 0);
-			if(strcmp(buf, MSG_VOTE_OK)){
-				votecnt++;	
-				printf("[I] vote count = [%d]\n", votecnt);
+			if(strcmp(buf, MSG_VOTE_REPLY)){
+				printf("[I] Candidate received vote.	count = [%d]\n", votecnt);
+				if(++votecnt > NUMNODE/2){
+					printf("[I] Candidate got quorum.	count = [%d]\n", votecnt);
+					return 1;
+				}
 			}
-			if(votecnt > NUMNODE/2){
-				/*******************
-				need to do something
-				********************/
-				return 1;
+			else if(strcmp(buf, MSG_VOTE_REQUEST)){
+				printf("[D] Candidate received vote request.\n");
 			}
 		}
 	}
