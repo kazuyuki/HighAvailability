@@ -4,6 +4,8 @@
 
 #define MSG_VOTE_REQUEST	"vote me"
 #define MSG_VOTE_REPLY		"vote ok"
+#define MSG_HB_REQIEST		"heartbeat request"
+#define MSG_HB_REPLY		"heartbeat reply"
 
 enum { FOLLOWER, CANDIDATE, LEADER };
 
@@ -50,7 +52,7 @@ int	role = FOLLOWER;
 
 #endif
 
-int init_raft(void);
+int init_raft(char*);
 
 // follower.c
 int follower(void);

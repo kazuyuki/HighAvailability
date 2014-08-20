@@ -45,7 +45,7 @@ int check_vote()
 	FD_SET(sd, &readfds);
 	tv.tv_sec	= TIMEOUT;
 	int n;
-	int votecnt	= 1;	/* self vote */
+	int votecnt	= 0;
 
 	while(1){
 		memcpy(&fds, &readfds, sizeof(fd_set));
@@ -64,15 +64,17 @@ int check_vote()
 		if(FD_ISSET(sd, &fds)){
 			memset(buf, 0, sizeof(buf));
 			recv(sd, buf, sizeof(buf), 0);
-			if(strcmp(buf, MSG_VOTE_REPLY)){
+			printf("[D][%s:%d] %s\n", __FILE__, __LINE__, buf);
+			if(0 == strcmp(buf, MSG_VOTE_REPLY)){
+				votecnt++;
 				printf("[I] Candidate received vote.	count = [%d]\n", votecnt);
-				if(++votecnt > NUMNODE/2){
+				if(votecnt > NUMNODE/2){
 					printf("[I] Candidate got quorum.	count = [%d]\n", votecnt);
 					return 1;
 				}
 			}
-			else if(strcmp(buf, MSG_VOTE_REQUEST)){
-				printf("[D] Candidate received vote request.\n");
+			else if(0 == strcmp(buf, MSG_VOTE_REQUEST)){
+				printf("[D] Candidate received and ignore vote request.\n");
 			}
 		}
 	}
