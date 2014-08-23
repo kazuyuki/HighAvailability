@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -6,10 +7,6 @@
 
 #define EXTERN
 #include "common.h"
-
-int leader(){
-	return 0;
-}
 
 int main (int argc, char** argv)
 {
@@ -35,11 +32,11 @@ int main (int argc, char** argv)
 
 int init_raft (char* id)
 {
+	ID = atoi(id);
 	sd = socket (AF_INET, SOCK_DGRAM, 0);
 	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr	= inet_addr(MYADDR);
-	//addr.sin_port	= htons(PORT);
-	addr.sin_port	= htons(destport[atoi(id)]);
+	addr.sin_addr.s_addr	= inet_addr(destaddr[ID]);
+	addr.sin_port	= htons(destport[ID]);
 	bind(sd, (struct sockaddr *)&addr, sizeof(addr));
 
 	NUMNODE = sizeof(destaddr)/sizeof(destaddr[0]);

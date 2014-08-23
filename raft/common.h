@@ -2,14 +2,22 @@
 #include <time.h>
 #include <sys/select.h>
 
-#define MSG_VOTE_REQUEST	"vote me"
-#define MSG_VOTE_REPLY		"vote ok"
-#define MSG_HB_REQIEST		"heartbeat request"
-#define MSG_HB_REPLY		"heartbeat reply"
+enum {
+	MSG_VOTE_REQUEST,
+	MSG_VOTE_REPLY,
+	MSG_HB_REQUEST,
+	MSG_HB_REPLY
+};
 
 enum { FOLLOWER, CANDIDATE, LEADER };
 
+struct msg {
+	int	node;
+	int	content;
+};
+
 #ifndef EXTERN
+extern int	ID;
 extern char	MYADDR[];
 extern char*	destaddr[3];
 extern int	destport[]; 
@@ -19,13 +27,13 @@ extern int	sd;
 extern struct	sockaddr_in	addr;
 extern fd_set	fds, readfds;
 extern int	maxfd;
-extern struct	timeval tv;
 extern char	buf[1024];
 extern int	role;
 extern int	NUMNODE;
 #else
 
-char	MYADDR[] = "127.0.0.1";
+//char	MYADDR[] = "127.0.0.1";
+int	ID;
 int	NUMNODE;
 char*	destaddr[] = {
 	"127.0.0.1",
@@ -39,14 +47,13 @@ int	destport[] = {
 	11113
 };
 
-int	PORT	= 11110;
+//int	PORT	= 11110;
 int	TIMEOUT	= 6;
 int	sd;
 struct	sockaddr_in	addr;
 fd_set	fds, readfds;
 int	maxfd;
-struct	timeval tv;
-char	buf[1024];
+//char	buf[1024];
 
 int	role = FOLLOWER;
 

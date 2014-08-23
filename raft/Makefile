@@ -3,7 +3,7 @@ TARGET=krc
 .c.o:
 	cc -c $<
 
-SRC = main.c follower.c candidate.c
+SRC = main.c follower.c candidate.c leader.c
 OBJ = $(SRC:%.c=%.o)
 krc: $(OBJ)
 	cc -o $@ $^

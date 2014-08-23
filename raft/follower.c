@@ -8,6 +8,8 @@
 
 int follower()
 {
+
+	printf("[D] **** Start FOLLOWER\n");
 	while(1){
 		if(!hbrecv()){
 			/* timeout */
@@ -21,42 +23,62 @@ int follower()
 
 int hbrecv()
 {
+	ssize_t	ret;
 	struct sockaddr_in sa;
 	socklen_t	al;
 	int n;
+	int dst;
+	struct msg	m;
+	struct timeval	tv;
 
 	FD_ZERO(&readfds);
 	FD_SET(sd, &readfds);
-	tv.tv_sec	= TIMEOUT;
+	sa.sin_family	= AF_INET;
 
 	while(1){
+		tv.tv_sec	= TIMEOUT;
+		tv.tv_usec	= 0;
 		memcpy(&fds, &readfds, sizeof(fd_set));
 		n = select(sd+1, &fds, NULL, NULL, &tv);
 		if (n == 0){
 			/* time out */
-			printf("[D][%s:%d] timeout\n", __FILE__, __LINE__);
+			printf("[W][%s:%d] FOLLOWER timeout\n", __FILE__, __LINE__);
 			return 0;
 		}
 		if(FD_ISSET(sd, &fds)){
-			memset(buf, 0, sizeof(buf));
+			m.node = m.content = -1;
 			/* need to add recieving/replying HB */
-			recvfrom(sd, buf, sizeof(buf), 0, (struct sockaddr*)&sa, &al);
-			printf("[D][%s:%d] FOLLOWER received from %s:%d\n", __FILE__, __LINE__, inet_ntoa(sa.sin_addr), ntohs(sa.sin_port));
-			if(!strcmp(buf, MSG_VOTE_REQUEST)){
+			recvfrom(sd, &m, sizeof(m), 0, (struct sockaddr*)&sa, &al);
+			//printf("[D][%s:%d] FOLLOWER received [%d] from node [%d]\n", __FILE__, __LINE__, m.content, m.node);
+			dst = m.node;
+			if(m.content == MSG_VOTE_REQUEST){
 				/* Replying vote */
-				memset(buf, 0, sizeof(buf));
-				snprintf(buf, sizeof(buf), MSG_VOTE_REPLY);
-				printf("[D][%s:%d] reply to %s:%d %s\n", __FILE__, __LINE__, inet_ntoa(sa.sin_addr), ntohs(sa.sin_port), buf);
-				sendto(sd, buf, strlen(buf),0, (struct sockaddr*)&sa, al);
-				printf("[I] responsed for vote.\n");
+				m.node = ID;
+				m.content = MSG_VOTE_REPLY;
+				sa.sin_addr.s_addr = inet_addr(destaddr[dst]);
+				sa.sin_port = htons(destport[dst]);
+				ret = sendto(sd, &m, sizeof(m),0, (struct sockaddr*)&sa, sizeof(sa));
+				if (ret == -1){
+					perror("[E] FOLLOWER sendto 1");
+				}
+				printf("[I] FOLLOWER reply VOTE REPLY to node[%d][%d]\n", m.node, m.content);
 				continue;
 			}
-			else if(!strcmp(buf, MSG_HB_REQIEST)){
+			else if(m.content == MSG_HB_REQUEST){
 				/* Replying heartbeat */
-				memset(buf, 0, sizeof(buf));
-				snprintf(buf, sizeof(buf), MSG_HB_REPLY);
-				sendto(sd, buf, strlen(buf),0, (struct sockaddr*)&sa, al);
-				printf("[D] responsed for heartbeat.\n");
+				m.node = ID;
+				m.content = MSG_HB_REPLY;
+				sa.sin_addr.s_addr = inet_addr(destaddr[dst]);
+				sa.sin_port = htons(destport[dst]);
+				ret = sendto(sd, &m, sizeof(m), 0, (struct sockaddr*)&sa, al);
+				if (ret == -1){
+					perror("[E] FOLLOWER sendto 2");
+				}
+				printf("[D] FOLLOWER responsed for HB.\n");
+				continue;
+			}
+			else {
+				printf("[E] FOLLOWER received unknown.\n");
 				continue;
 			}
 			return 1;
