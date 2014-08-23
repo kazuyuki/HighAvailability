@@ -68,7 +68,7 @@ int hbrecv(void);
 // candidate.c
 int candidate(void);
 int request_vote(void);
-int check_vote(void);
+int candidate_recv(void);
 
 // leader.c
 int leader(void);

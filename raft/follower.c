@@ -8,7 +8,6 @@
 
 int follower()
 {
-
 	printf("[D] **** Start FOLLOWER\n");
 	while(1){
 		if(!hbrecv()){
@@ -24,7 +23,6 @@ int follower()
 int hbrecv()
 {
 	ssize_t	ret;
-	struct sockaddr_in sa;
 	socklen_t	al;
 	int n;
 	int dst;
@@ -33,7 +31,6 @@ int hbrecv()
 
 	FD_ZERO(&readfds);
 	FD_SET(sd, &readfds);
-	sa.sin_family	= AF_INET;
 
 	while(1){
 		tv.tv_sec	= TIMEOUT;
@@ -48,40 +45,33 @@ int hbrecv()
 		if(FD_ISSET(sd, &fds)){
 			m.node = m.content = -1;
 			/* need to add recieving/replying HB */
-			recvfrom(sd, &m, sizeof(m), 0, (struct sockaddr*)&sa, &al);
-			//printf("[D][%s:%d] FOLLOWER received [%d] from node [%d]\n", __FILE__, __LINE__, m.content, m.node);
+			//recvfrom(sd, &m, sizeof(m), 0, (struct sockaddr*)&addr, &al);
+			if(-1 == recv(sd, &m, sizeof(m), 0)){
+				perror("[E] FOLLOWER recv");
+			} else {
+				//printf("[D][%s:%d] FOLLOWER received [%d] from node [%d]\n", __FILE__, __LINE__, m.content, m.node);
+			}
 			dst = m.node;
+			addr.sin_addr.s_addr = inet_addr(destaddr[dst]);
+			addr.sin_port = htons(destport[dst]);
+			m.node = ID;
 			if(m.content == MSG_VOTE_REQUEST){
 				/* Replying vote */
-				m.node = ID;
 				m.content = MSG_VOTE_REPLY;
-				sa.sin_addr.s_addr = inet_addr(destaddr[dst]);
-				sa.sin_port = htons(destport[dst]);
-				ret = sendto(sd, &m, sizeof(m),0, (struct sockaddr*)&sa, sizeof(sa));
-				if (ret == -1){
-					perror("[E] FOLLOWER sendto 1");
-				}
-				printf("[I] FOLLOWER reply VOTE REPLY to node[%d][%d]\n", m.node, m.content);
-				continue;
 			}
 			else if(m.content == MSG_HB_REQUEST){
 				/* Replying heartbeat */
-				m.node = ID;
 				m.content = MSG_HB_REPLY;
-				sa.sin_addr.s_addr = inet_addr(destaddr[dst]);
-				sa.sin_port = htons(destport[dst]);
-				ret = sendto(sd, &m, sizeof(m), 0, (struct sockaddr*)&sa, al);
-				if (ret == -1){
-					perror("[E] FOLLOWER sendto 2");
-				}
-				printf("[D] FOLLOWER responsed for HB.\n");
-				continue;
 			}
 			else {
 				printf("[E] FOLLOWER received unknown.\n");
 				continue;
 			}
-			return 1;
+			ret = sendto(sd, &m, sizeof(m), 0, (struct sockaddr*)&addr, sizeof(addr));
+			if (ret == -1){
+				perror("[E] FOLLOWER sendto 1");
+			}
+			printf("[I] FOLLOWER send [%d] to node [%d]\n", m.content, dst);
 		}
 	}
 }

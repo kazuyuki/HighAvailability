@@ -9,17 +9,15 @@
 int leader()
 {
 	int	i, n;
-	struct sockaddr_in	dest;
 	struct msg m;
 
-	dest.sin_family = AF_INET;
 	while(1){
 		m.node	= ID;
 		m.content	= MSG_HB_REQUEST;
 		for(i=0; i<NUMNODE; i++){
-			dest.sin_addr.s_addr = inet_addr(destaddr[i]);
-			dest.sin_port = htons(destport[i]);
-			sendto(sd, &m, sizeof(m), 0, (struct sockaddr*)&dest, sizeof(dest));
+			addr.sin_addr.s_addr = inet_addr(destaddr[i]);
+			addr.sin_port = htons(destport[i]);
+			sendto(sd, &m, sizeof(m), 0, (struct sockaddr*)&addr, sizeof(addr));
 			printf("[D] LEADER sent [%d] to node [%d]\n", m.content, i);
 		}
 		while(1){

@@ -12,7 +12,7 @@ int candidate()
 	request_vote();
 
 	/* need to add proccessing response for vote */
-	if(check_vote()){
+	if(candidate_recv()){
 		role = LEADER;
 		printf("[I] became LEADER\n");
 	} else {
@@ -25,22 +25,20 @@ int candidate()
 int request_vote()
 {
 	int	i;
-	struct sockaddr_in	dest;
 	struct msg m;
 
-	dest.sin_family = AF_INET;
 	m.node = ID;
 	m.content = MSG_VOTE_REQUEST;
 	for(i=0; i<NUMNODE; i++){ 
-		dest.sin_addr.s_addr = inet_addr(destaddr[i]);
-		dest.sin_port = htons(destport[i]); 
-		sendto(sd, &m, sizeof(m), 0, (struct sockaddr *)&dest, sizeof(dest));
+		addr.sin_addr.s_addr = inet_addr(destaddr[i]);
+		addr.sin_port = htons(destport[i]); 
+		sendto(sd, &m, sizeof(m), 0, (struct sockaddr *)&addr, sizeof(addr));
 		printf("[D][%s:%d] CANDIDATE sent REQUEST VOTE to node[%d][%d]\n", __FILE__, __LINE__, i, MSG_VOTE_REQUEST);
 	}
 	return 0;
 }
 
-int check_vote()
+int candidate_recv()
 {
 	struct timeval	tv;
 
@@ -55,7 +53,6 @@ int check_vote()
 	while(1){
 		memcpy(&fds, &readfds, sizeof(fd_set));
 		n = select(sd+1, &fds, NULL, NULL, &tv);
-		//n = select(0, &fds, NULL, NULL, &tv);
 		if (n == 0){
 			/* time out */
 			printf("[D][%s:%d] CANDIDATE timeout\n", __FILE__, __LINE__);
@@ -81,10 +78,10 @@ int check_vote()
 				}
 			}
 			else if(m.content == MSG_VOTE_REQUEST){
-				printf("[D] Candidate received and ignored vote request.\n");
+				printf("[D] CANDIDATE received and ignored vote request.\n");
 			}
 			else {
-				printf("[E] Candidate received unknown message.\n");
+				printf("[E] CANDIDATE received unknown message.\n");
 			}
 		}
 	}
