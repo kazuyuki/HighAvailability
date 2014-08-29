@@ -16,23 +16,28 @@ struct msg {
 	int	content;
 };
 
+int role;
+
+int	sd;
+struct	sockaddr_in	addr;
+fd_set	fds, readfds;
+int	maxfd;
+int	currentTerm;
+
 #ifndef EXTERN
 extern int	ID;
-extern char	MYADDR[];
+extern int	NUMNODE;
 extern char*	destaddr[3];
 extern int	destport[]; 
-extern int	PORT;
 extern int	TIMEOUT;
+/*
 extern int	sd;
 extern struct	sockaddr_in	addr;
 extern fd_set	fds, readfds;
 extern int	maxfd;
-extern char	buf[1024];
-extern int	role;
-extern int	NUMNODE;
+*/
 #else
 
-//char	MYADDR[] = "127.0.0.1";
 int	ID;
 int	NUMNODE;
 char*	destaddr[] = {
@@ -47,23 +52,16 @@ int	destport[] = {
 	11113
 };
 
-//int	PORT	= 11110;
 int	TIMEOUT	= 6;
-int	sd;
-struct	sockaddr_in	addr;
-fd_set	fds, readfds;
-int	maxfd;
-//char	buf[1024];
-
-int	role = FOLLOWER;
 
 #endif
 
+// main.c
 int init_raft(char*);
 
 // follower.c
 int follower(void);
-int hbrecv(void);
+int follower_recv(void);
 
 // candidate.c
 int candidate(void);

@@ -68,7 +68,7 @@ int candidate_recv()
 			m.node = -1;
 			m.content = -1;
 			recv(sd, &m, sizeof(m), 0);
-			printf("[D][%s:%d] CANDIDATE received from node[%d][%d]\n", __FILE__, __LINE__, m.node, m.content);
+			printf("[D][%s:%d] CANDIDATE received [%d] from node [%d]\n", __FILE__, __LINE__, m.content, m.node);
 			if(m.content == MSG_VOTE_REPLY){
 				votecnt++;
 				printf("[I] Candidate received vote.	count = [%d]\n", votecnt);
