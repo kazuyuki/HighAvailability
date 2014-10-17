@@ -12,13 +12,14 @@ int leader()
 	struct msg m;
 
 	while(1){
-		m.node	= ID;
-		m.content	= MSG_HB_REQUEST;
+		m.node = ID;
+		m.term = currentTerm;
+		m.content = MSG_HB_REQUEST;
 		for(i=0; i<NUMNODE; i++){
 			addr.sin_addr.s_addr = inet_addr(destaddr[i]);
 			addr.sin_port = htons(destport[i]);
 			sendto(sd, &m, sizeof(m), 0, (struct sockaddr*)&addr, sizeof(addr));
-			printf("[D] LEADER sent [%d] to node [%d]\n", m.content, i);
+			printf("[D] LEADER term [%d] sent [%d] to node [%d]\n", m.term, m.content, i);
 		}
 		while(1){
 			struct timeval tv;

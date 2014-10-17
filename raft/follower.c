@@ -52,11 +52,19 @@ int follower_recv()
 
 			addr.sin_addr.s_addr = inet_addr(destaddr[m.node]);
 			addr.sin_port = htons(destport[m.node]);
-			dest = m.node;
-			m.node = ID;
 			if (m.content == MSG_VOTE_REQUEST) {
-				/* Replying vote */
-				m.content = MSG_VOTE_REPLY;
+				/*
+				   Replying vote 
+				   Receiver implementation:
+				   1. Reply false if term < currentTerm (section 5.1)
+				   2. If votedFor is null or candidateId, and candidate’s log is at
+				      least as up-to-date as receiver’s log, grant vote 
+				*/
+				if ((m.term >= currentTerm) &&
+				   ((m.node == votedFor) || (votedFor == -1))){
+					votedFor = dest;
+					m.content = MSG_VOTE_REPLY;
+				}
 			} else if (m.content == MSG_HB_REQUEST) {
 				/* Replying heartbeat */
 				m.content = MSG_HB_REPLY;
@@ -64,11 +72,23 @@ int follower_recv()
 				printf("[E] FOLLOWER received unknown.\n");
 				continue;
 			}
+
+			/*
+			   If RPC request or response contains term T > currentTerm:
+			   set currentTerm = T, convert to follower (section 5.1)
+			*/
+			if(m.term > currentTerm){
+				printf("[I] FOLLOWER changed currentTerm from [%d] to [%d]\n", currentTerm, m.term);
+				currentTerm = m.term;
+			}
+
+			dest = m.node;
+			m.node = ID;
 			ret = sendto(sd, &m, sizeof(m), 0, (struct sockaddr *) &addr, sizeof(addr));
 			if (ret == -1) {
 				perror("[E] FOLLOWER sendto 1");
 			}
-			printf("[I] FOLLOWER send [%d] to node [%d]\n", m.content, dest);
+			printf("[I] FOLLOWER term [%d] send [%d] to node [%d]\n", m.term, m.content, dest);
 		}
 	}
 }

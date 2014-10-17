@@ -13,6 +13,7 @@ enum { FOLLOWER, CANDIDATE, LEADER };
 
 struct msg {
 	int	node;
+	int	term;
 	int	content;
 };
 
@@ -23,6 +24,7 @@ struct	sockaddr_in	addr;
 fd_set	fds, readfds;
 int	maxfd;
 int	currentTerm;
+int	votedFor;
 
 #ifndef EXTERN
 extern int	ID;

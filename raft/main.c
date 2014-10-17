@@ -37,12 +37,14 @@ int init_raft(char *id)
 
 	role = FOLLOWER;
 	currentTerm = 0;
+	votedFor = -1;		/* voted for none */
 
 	sd = socket(AF_INET, SOCK_DGRAM, 0);
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = inet_addr(destaddr[ID]);
 	addr.sin_port = htons(destport[ID]);
 	if(0 != bind(sd, (struct sockaddr *) &addr, sizeof(addr))){
+		perror("[E] main.c bind");
 		return -1;
 	}
 	return 0;
