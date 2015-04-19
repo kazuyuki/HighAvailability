@@ -159,6 +159,77 @@ State Machine Safety : 与えられたインデックスのログエントリを
 5.1 ラフトの基本
 
 5.2 リーダー選挙
+Raftはリーダー選挙を行うために、ハートビートの仕組みを使う。サーバが走り始めたら、それらは まずフォロワーになる。
+サーバはリーダーか候補者から有効なRPCを受信するまでフォロワーの状態のままです。
+リーダー達は全フォロワーへ定期的なハートビート（ログエントリーの無い AppendEntriesRPC）を送信し彼らの権威を維持する。
+フォロワーが *ｅｌｅｃｔｉｏｎ ｔｉｍｅｏｕｔ*　と呼ばれる期間、何も受信しなかった場合、動作可能なリーダーが存在しないと見做して新たなリーダーを選ぶために選挙を始める。
+
+フォロワーは選挙を始める際、ｃｕｒｒｅｎｔ ｔｅｒｍをインクリメントし、候補者状態になる。候補者状態になったら自分自身に投票し、平行してクラスタ内の他のサーバに RequestVore　RPC　を送信する。
+候補者は下記 3つの内 1つが起こるまでこの状態維持する。
+
+(a)選挙に勝つ (b)他のサーバがリーダーになる (c)勝者がいないまま ある期間が過ぎる
+
+これらの成果を以下に説明する。
+
+A candidate wins an election if it receives votes from
+a majority of the servers in the full cluster for the same
+term. Each server will vote for at most one candidate in a
+given term, on a first-come-first-served basis (note: Sec-
+tion 5.4 adds an additional restriction on votes). The ma-
+jority rule ensures that at most one candidate can win the
+election for a particular term (the Election Safety Prop-
+erty in Figure 3). Once a candidate wins an election, it
+becomes leader. It then sends heartbeat messages to all of
+the other servers to establish its authority and prevent new
+elections.
+
+While waiting for votes, a candidate may receive an
+AppendEntries RPC from another server claiming to be
+leader. If the leader’s term (included in its RPC) is at least
+as large as the candidate’s current term, then the candidate
+recognizes the leader as legitimate and returns to follower
+state. If the term in the RPC is smaller than the candidate’s
+current term, then the candidate rejects the RPC and con-
+tinues in candidate state.
+
+3つ目に得られる結果は
+もし、多くのフォロワーが同時に候補者になったら、投票が分裂するので、多数派（の投票）を獲得する候補者がいなくなり、候補者が選挙を勝ったり負けたりしなくなるということです。
+この状況が起こると、候補者はタイムアウトします。そして ｔｅｒｍをインクリメントし、新たなラウンドの RequestVote　RPC　を開始することによって新たな選挙を始めます。
+
+Raft uses randomized election timeouts to ensure that
+split votes are rare and that they are resolved quickly. To
+prevent split votes in the first place, election timeouts are
+chosen randomly from a fixed interval (e.g., 150–300ms).
+This spreads out the servers so that in most cases only a
+single server will time out; it wins the election and sends
+heartbeats before any other servers time out. The same
+mechanism is used to handle split votes. Each candidate
+restarts its randomized election timeout at the start of an
+election, and it waits for that timeout to elapse before
+starting the next election; this reduces the likelihood of
+another split vote in the new election. Section 9.3 shows
+that this approach elects a leader rapidly.
+Figure 6: Logs are composed of entries, which are numbered
+sequentially. Each entry contains the term in which it was
+created (the number in each box) and a command for the state
+machine. An entry is considered committed if it is safe for that
+entry to be applied to state machines.
+Elections are an example of how understandability
+guided our choice between design alternatives. Initially
+we planned to use a ranking system: each candidate was
+assigned a unique rank, which was used to select between
+competing candidates. If a candidate discovered another
+candidate with higher rank, it would return to follower
+state so that the higher ranking candidate could more eas-
+ily win the next election. We found that this approach
+created subtle issues around availability (a lower-ranked
+server might need to time out and become a candidate
+again if a higher-ranked server fails, but if it does so too
+soon, it can reset progress towards electing a leader). We
+made adjustments to the algorithm several times, but after
+each adjustment new corner cases appeared. Eventually
+we concluded that the randomized retry approach is more
+obvious and understandable.
 
 5.3 ログ複製
 
