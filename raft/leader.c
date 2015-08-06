@@ -24,8 +24,8 @@ int leader()
 		while(1){
 			struct timeval tv;
 
-			tv.tv_sec	= TIMEOUT/2;
-			tv.tv_usec	= 0;
+			tv.tv_sec	= 3/2;
+			tv.tv_usec	= (TO_MIN + (rand() * (TO_MAX - TO_MIN) / RAND_MAX))/2;
 
 			memcpy(&fds, &readfds, sizeof(fd_set));
 			n = select(sd+1, &fds, NULL, NULL, &tv);

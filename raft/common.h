@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <sys/select.h>
+#include <stdlib.h>
 
 enum {
 	MSG_VOTE_REQUEST,
@@ -31,7 +32,9 @@ extern int	ID;
 extern int	NUMNODE;
 extern char*	destaddr[3];
 extern int	destport[]; 
-extern int	TIMEOUT;
+extern int	TO_MIN;
+extern int	TO_MAX;
+
 /*
 extern int	sd;
 extern struct	sockaddr_in	addr;
@@ -54,7 +57,8 @@ int	destport[] = {
 	11113
 };
 
-int	TIMEOUT	= 6;
+int	TO_MIN = 100000;
+int	TO_MAX = 900000;
 
 #endif
 

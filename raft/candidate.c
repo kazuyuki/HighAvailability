@@ -17,6 +17,7 @@ int candidate()
 		printf("[I] became LEADER\n");
 	} else {
 		role = FOLLOWER;
+		printf("[I] ===============\n");
 		printf("[I] became FOLLOWER\n");
 	}
 	return 0;
@@ -27,7 +28,7 @@ int request_vote()
 	int i;
 	struct msg m;
 
-	printf("[I] CANDIDATE changed currentTerm from [%d] to [%d]\n", currentTerm, currentTerm + 1);
+	printf("[I][%s:%d] CANDIDATE changed currentTerm from [%d] to [%d]\n", __FILE__, __LINE__, currentTerm, currentTerm + 1);
 	currentTerm++;
 	votedFor = ID;		/* vote for self */
 
@@ -38,7 +39,7 @@ int request_vote()
 		addr.sin_addr.s_addr = inet_addr(destaddr[i]);
 		addr.sin_port = htons(destport[i]);
 		sendto(sd, &m, sizeof(m), 0, (struct sockaddr *) &addr, sizeof(addr));
-		printf("[D][%s:%d] CANDIDATE sent REQUEST VOTE to node[%d][%d]\n", __FILE__, __LINE__, i, MSG_VOTE_REQUEST);
+		printf("[D][%s:%d] CANDIDATE sent REQUEST VOTE to node[%d]\n", __FILE__, __LINE__, i);
 	}
 	return 0;
 }
@@ -49,8 +50,9 @@ int candidate_recv()
 
 	FD_ZERO(&readfds);
 	FD_SET(sd, &readfds);
-	tv.tv_sec = TIMEOUT;
-	tv.tv_usec = 0;
+	tv.tv_sec = 3;
+	tv.tv_usec = TO_MIN + (rand() * (TO_MAX - TO_MIN + 1.0) / (1.0 + RAND_MAX));
+	printf("[D][%s:%d] CANDIDATE TIMEOUT = [%ld].[%ld]\n", __FILE__, __LINE__, tv.tv_sec, tv.tv_usec);
 	int n;
 	int votecnt = 1;	/* vote for self */
 	struct msg m;
@@ -82,7 +84,7 @@ int candidate_recv()
 					return 1;
 				}
 			} else if (m.content == MSG_VOTE_REQUEST) {
-				printf("[D] CANDIDATE received and ignored vote request.\n");
+				printf("[D] CANDIDATE received REQUEST_VOTE and ignored.\n");
 			} else {
 				printf("[E] CANDIDATE received unknown message.\n");
 			}

@@ -9,10 +9,12 @@
 int follower()
 {
 	printf("[D] **** Start FOLLOWER\n");
+	votedFor = -1;
 	while (1) {
 		if (!follower_recv()) {
 			/* timeout */
 			role = CANDIDATE;
+			printf("[I] ================\n");
 			printf("[I] became CANDIDATE\n");
 			break;
 		}
@@ -33,8 +35,9 @@ int follower_recv()
 	FD_SET(sd, &readfds);
 
 	while (1) {
-		tv.tv_sec = TIMEOUT;
-		tv.tv_usec = 0;
+		tv.tv_sec = 3;
+		tv.tv_usec = TO_MIN + (rand() * (TO_MAX - TO_MIN + 1.0) / (1.0+RAND_MAX));
+		printf("[D] TIMEOUT = [%ld].[%ld]\n", tv.tv_sec, tv.tv_usec);
 		memcpy(&fds, &readfds, sizeof(fd_set));
 		n = select(sd + 1, &fds, NULL, NULL, &tv);
 		if (n == 0) {
@@ -48,10 +51,11 @@ int follower_recv()
 			if (-1 == recv(sd, &m, sizeof(m), 0)) {
 				perror("[E] FOLLOWER recv");
 			}
-			//printf("[D][%s:%d] FOLLOWER received [%d] from node [%d]\n", __FILE__, __LINE__, m.content, m.node);
+			printf("[D][%s:%d] FOLLOWER received [%d] from node [%d]\n", __FILE__, __LINE__, m.content, m.node);
 
 			addr.sin_addr.s_addr = inet_addr(destaddr[m.node]);
 			addr.sin_port = htons(destport[m.node]);
+
 			if (m.content == MSG_VOTE_REQUEST) {
 				/*
 				   Replying vote 
@@ -60,10 +64,13 @@ int follower_recv()
 				   2. If votedFor is null or candidateId, and candidate’s log is at
 				      least as up-to-date as receiver’s log, grant vote 
 				*/
+				printf("[D] FOLLOWER received REQUEST_VOTE. votedFor=[%d]\n", votedFor);
 				if ((m.term >= currentTerm) &&
 				   ((m.node == votedFor) || (votedFor == -1))){
-					votedFor = dest;
+					//votedFor = dest;
+					votedFor = m.node;
 					m.content = MSG_VOTE_REPLY;
+					printf("[D] message content will be MSG_VOTE_REPLY to node[%d].\n", votedFor);
 				}
 			} else if (m.content == MSG_HB_REQUEST) {
 				/* Replying heartbeat */
@@ -80,6 +87,7 @@ int follower_recv()
 			if(m.term > currentTerm){
 				printf("[I] FOLLOWER changed currentTerm from [%d] to [%d]\n", currentTerm, m.term);
 				currentTerm = m.term;
+				votedFor = -1;
 			}
 
 			dest = m.node;
