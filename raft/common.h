@@ -24,8 +24,19 @@ int	sd;
 struct	sockaddr_in	addr;
 fd_set	fds, readfds;
 int	maxfd;
+
+// Persistent state on all servers
 int	currentTerm;
 int	votedFor;
+int	log[];
+
+// Volatile state on all servers
+int	commitIndex;
+int	lastApplied;
+
+// Volatile state on leaders
+int	nextIndex[];
+int	matchIndex[];
 
 #ifndef EXTERN
 extern int	ID;
@@ -35,12 +46,6 @@ extern int	destport[];
 extern int	TO_MIN;
 extern int	TO_MAX;
 
-/*
-extern int	sd;
-extern struct	sockaddr_in	addr;
-extern fd_set	fds, readfds;
-extern int	maxfd;
-*/
 #else
 
 int	ID;
