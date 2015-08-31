@@ -1,4 +1,4 @@
-TARGET=krc
+TARGET = krc
 
 .c.o:
 	cc -c $<
@@ -13,5 +13,9 @@ ALL: krc
 #krc:	main.c follower.c candidate.c leader.c
 #	cc -o $@ $<
 
+client: client.c
+
+	cc -o $@ $<
+
 clean:
-	rm -rf $(TARGET) *.o *~ 
+	rm -rf $(TARGET) client *.o *~ 
