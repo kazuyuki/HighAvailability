@@ -26,8 +26,8 @@ To release
 
 	#sg_persist -o -L -K 123abc -T 5 -d /dev/sdd
 
-Common used reservation Types:
-5 - Write Exclusive, registrants only
+Common used reservation Types:  
+5 - Write Exclusive, registrants only  
 6 - Exclusive Access, registrants only 
 
 
