@@ -10,13 +10,13 @@ To query all reservations for given device
 
 	#sg_persist -i -r -d /dev/sdd
 
-To register
+To register the new *reservation key* 0x123abc
 
-	#sg_persist -o -G -S 123abc /dev/sdd
+	#sg_persist -o -G -S 123abc -d /dev/sdd
 
 To clear all registrants
 
-	#sg_persist -C -K 123abc -o -d /dev/sdd
+	#sg_persist -o -C -K 123abc -d /dev/sdd
 
 To reserve
 
