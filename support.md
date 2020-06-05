@@ -1,4 +1,4 @@
-# Providing Support for XaaS
+# Contradiction of providing maintenance support for XaaS
 
 ## [Property of Service][1]
 
@@ -29,19 +29,20 @@ Because of formless, impossible to inventory.
 形のないものゆえ、在庫にすることが不可能。
 
 
-# Method of providing suppoor for service
+# Method of providing support for service
 
 「製品を応用したサービス」に対する瑕疵担保責任を果たすには以下の方法がある。
 
 - service ticket
 - refund
 
-# Think deep. 保守契約の更新など無い
 
-形の有る製品には、保守契約を延長あるいは更新する、という形態が有る。
-しかし、形の無いサービスは、生産と同時に消費され何も残らないという同時性があり、保守契約の更新などあり得ない。
+# Don't think like a maintenance contract renewal 「保守契約の更新」のように考えてはいけない
 
-「サービスに内在する問題を直すこと」は将来の顧客にとっては意味があるが、
-その問題によってサービスを受け損ねた今の顧客にとっては意味がない。
+形の有る製品には、保守契約を更新する、という形態がある。
+しかし、形の無いサービスは 同時性のために、保守契約の更新があり得ない。
+
+「サービスに内在する問題を直すこと」は将来の客にとっては意味があるが、
+その問題によってサービスを受け損ねた客にとっては意味がない (所謂製品ビジネス で成功体験があると これが理解されない)。
 
 [1]: http://www.seijo.ac.jp/pdf/faeco/kenkyu/187/187-komiyaji.pdf    "サービスの諸特性とサービス取引の諸課題 小宮路雅博 成城大学"
