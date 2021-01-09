@@ -28,15 +28,15 @@ int	maxfd;
 // Persistent state on all servers
 int	currentTerm;
 int	votedFor;
-int	log[];
+int	cmtlog[10];
 
 // Volatile state on all servers
 int	commitIndex;
 int	lastApplied;
 
 // Volatile state on leaders
-int	nextIndex[];
-int	matchIndex[];
+int	nextIndex;
+int	matchIndex;
 
 #ifndef EXTERN
 extern int	ID;
