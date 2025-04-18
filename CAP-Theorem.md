@@ -1,7 +1,7 @@
 # CAP定理
 
 分散システムにおいて、以下の3つのうち満たすことができるのは最大2つという定理。
-Eric Brewer が[予想][1]し、Seth Gilbert, Nacny Lynch が[証明][2]した。  
+Eric Brewer が[予想][1]し、Seth Gilbert, Nancy Lynch が[証明][2]した。  
 Eric Brewer 自身が2012年に [The "2 of 3" formulation was always misleading ][6] と表明しており、「2つは満たせるが、残り 1つは全く満たすことができない」と解釈するのではなく、残り 1つは「常に満たすこと」は不可能だが「いづれ満たすこと」は可能である、と解釈することが必要だ。
 
 ### Consistency (一貫性)
@@ -12,6 +12,39 @@ Eric Brewer 自身が2012年に [The "2 of 3" formulation was always misleading 
 
 死亡 (ダウン) していない生存中のノードが常に応答を反すこと。  
 これを実現するには、**単一点障害** が無いことが必要。
+
+Nancy Lynch による CAP定理の証明では、Availability を以下のように説明している。
+
+> For a distributed system to be continuously available, every request received by a non-failing node in the system must result in a response.
+> That is, any algorithm used by the service must eventually terminate. In some ways this is a weak definition of availability:
+> it puts no bound on how long the algorithm may run before terminating, and therefore allows unbounded computation.
+> On the other hand, when qualified by the need for partition tolerance, this can be seen as a strong definition of availability:
+> even when severe network failures occur, every request must terminate.
+
+[意訳]
+
+分散システムが可用性を満たすとは、
+
+可用性の弱い定義:  
+**「システム内の非障害ノードが受け取った全てのリクエストに応答する。」**
+
+これは、サービスによって使用される任意のアルゴリズムはいづれ停止しなければならないことを意味する。可用性の弱い定義とも言える。それは、アルゴリズムが停止するまでの時間に制限を設けておらず、したがって無制限の計算を許可する。
+一方で、分断耐性は必要であるという制約を加えると、可用性の強い定義を得られる。
+
+可用性の強い定義:  
+**「ネットワーク障害が発生しても、全てのリクエストに応答する。」**
+
+[私見]
+
+強い定義は「分断耐性の制約」を加えたとて、アルゴリズムが停止するまでの時間に制限を設けている訳ではない。
+
+A と独立して P の定義があることから、ここでいう「弱い定義」の方が無駄な制約を省き、より広範にカバーする強い定義と言える。
+
+と、ここまで考えると、弱い定義も「非障害ノード」という C に関わる制約を含んでいることに気づく
+(一般的 直感的に、障害ノードの発生は一貫性を喪失させる)。
+
+この制約も外せば、可用性の定義は **「全てのリクエストに応答する」** だけで済む。
+この定義は、システムが可用性を満たすために必要な条件を明確に示している。
 
 ### Partition tolerance (分断耐性)
 
@@ -103,7 +136,7 @@ DBにおける 3PC同様、HAクラスタといえども NP によって一貫�
 	- 分断耐性を弱める : 「強い一貫性と可用性を満たす HAクラスタ」に対して「分断耐性の弱め方」はありえるだろうか。
 
 [1]: http://www.cs.berkeley.edu/~brewer/cs262b-2004/PODC-keynote.pdf
-[2]: http://lpd.epfl.ch/sgilbert/pubs/BrewersConjecture-SigAct.pdf
+[2]: https://dl.acm.org/doi/epdf/10.1145/564585.564601
 [3]: http://the-paper-trail.org/blog/consensus-protocols-paxos/
 [4]: http://ossforum.jp/node/840
 [5]: https://ramcloud.stanford.edu/wiki/download/attachments/11370504/raft.pdf
